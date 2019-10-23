@@ -15,14 +15,15 @@ class Vec3d:
         return Vec3d(self.y * vector.z - self.z * vector.y, self.z * vector.x - self.x * vector.z, self.x * vector.y - self.y * vector.x)
 
     def magnitude(self):
-        return math.sqrt(Vec3d.dot(self, self))
+        return math.sqrt(self.dot(self))
 
     length = magnitude  # Alias length and magnitude
 
     def angle(self, vector):
-        a = self.dot(vector) / self.magnitude() * vector.magnitude()
-        print(a, type(a))
-        return math.acos(self.dot(vector) / self.magnitude() * vector.magnitude())
+        return math.acos(self.dot(vector) / (self.magnitude() * vector.magnitude()))
+
+    def angle_degree(self, vector):
+        return self.angle(vector) * (180 / math.pi)
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
