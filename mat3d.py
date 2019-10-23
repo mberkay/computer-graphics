@@ -1,3 +1,8 @@
+# CENG 487 Assignment1 by
+# Erdem Taylan
+# StudentId: 230201005
+# 10 2019
+
 from vec3d import Vec3d
 import math
 
@@ -19,8 +24,19 @@ class Mat3d:
                      Vec3d(self.matrix[0].z, self.matrix[1].z, self.matrix[2].z, self.matrix[3].z),
                      Vec3d(self.matrix[0].w, self.matrix[1].w, self.matrix[2].w, self.matrix[3].w))
 
+    def __mul__(self, scalar):
+        return Mat3d(self.matrix[0] * scalar,
+                     self.matrix[1] * scalar,
+                     self.matrix[2] * scalar,
+                     self.matrix[3] * scalar)
 
-class TransformMat3d(Mat3d):
+    __rmul__ = __mul__
+
+    def __str__(self):
+        return f"{self.matrix[0]}\n{self.matrix[1]}\n{self.matrix[2]}\n{self.matrix[3]}"
+
+
+class TransformMatrix(Mat3d):
     def __init__(self, x, y, z):
         super().__init__(Vec3d(1, 0, 0, x),
                          Vec3d(0, 1, 0, y),
@@ -28,7 +44,7 @@ class TransformMat3d(Mat3d):
                          Vec3d(0, 0, 0, 1))
 
 
-class ScalingMat3d(Mat3d):
+class ScalingMatrix(Mat3d):
     def __init__(self, x, y, z):
         super().__init__(Vec3d(x, 0, 0, 0),
                          Vec3d(0, y, 0, 0),

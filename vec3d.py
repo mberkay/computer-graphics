@@ -1,8 +1,13 @@
+# CENG 487 Assignment1 by
+# Erdem Taylan
+# StudentId: 230201005
+# 10 2019
+
 import math
 
 
 class Vec3d:
-    def __init__(self, x: float, y: float, z: float, w=0):
+    def __init__(self, x: float, y: float, z: float, w: float = 0):
         self.x = x
         self.y = y
         self.z = z
@@ -27,13 +32,13 @@ class Vec3d:
         return on_vector * (dot / magnitude_square)  # TODO check zero division
 
     def angle(self, vector):
-        return math.acos(self.dot(vector) / (self.magnitude() * vector.magnitude()))  # TODO check zero division
+        return math.acos(self.dot(vector) / (self.magnitude * vector.magnitude))  # TODO check zero division
 
     def angle_degree(self, vector):
         return self.angle(vector) * (180 / math.pi)
 
     def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
+        return f"({self.x}, {self.y}, {self.z}, {self.w})"
 
     def __repr__(self):
         return f"Vector3{str(self)}"
@@ -50,12 +55,12 @@ class Vec3d:
         else:
             raise Exception(f"Can't subtract vector3 to type {type(vector)}")
 
-    def __mul__(self, scalar: int):
+    def __mul__(self, scalar: float):
         return Vec3d(self.x * scalar, self.y * scalar, self.z * scalar)
 
     __rmul__ = __mul__  # Alias to calculate both (scalar * vector) and (vector * scalar)
 
-    def __truediv__(self, scalar: int):
+    def __truediv__(self, scalar: float):
         return self * scalar ** -1
 
     def __neg__(self, ):
