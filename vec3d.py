@@ -19,6 +19,11 @@ class Vec3d:
 
     length = magnitude  # Alias length and magnitude
 
+    def project(self, on_vector):
+        magnitude_square = on_vector.dot(on_vector)
+        dot = self.dot(on_vector)
+        return on_vector * (dot / magnitude_square)
+
     def angle(self, vector):
         return math.acos(self.dot(vector) / (self.magnitude() * vector.magnitude()))
 
