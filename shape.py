@@ -1,31 +1,36 @@
 # CENG 487 Assignment1 by
-# Erdem Taylan
+# Mustafa Berkay Özkan
 # StudentId: 230201005
-# 10 2019
+# 11 2019
 
 from typing import List
+
+from transform import Transform
 from vec3d import Vec3d
-from mat3d import Mat3d
+from mat3d import *
+from mesh import Mesh
 from OpenGL.GL import *
 
 
 class Shape:
-    def __init__(self, position: Vec3d, vertices: List[Vec3d], color: Vec3d, size: float = 1.0):
-        self.position = position
-        self.vertices = vertices
-        self.size = size
-        self.color = color / 255
+    def __init__(self, mesh: Mesh, transform: Transform = None):
+        if transform is None:
+            transform = Transform()
+        self.transform = transform
+        self.mesh = mesh
 
     def draw(self):
-        glBegin(GL_POLYGON)
-        glColor3f(self.color.x, self.color.y, self.color.z)
-        for vertex in self.vertices:
-            vertex_position = self.position + (vertex * self.size)
-            glVertex3f(vertex_position.x, vertex_position.y, vertex_position.z)
+        self.transform.update()
+        glBegin(GL_TRIANGLES)
+        # print("transform matrix ", self.transform.transform_matrix)
+        for i in range(0, len(self.mesh.triangles), 3):
+            glColor3f(self.mesh.color[i].x, self.mesh.color[i].y, self.mesh.color[i].z)
+            for j in range(3):
+                vertex = self.mesh.vertices[self.mesh.triangles[i + j]]
+                # print("vertex ", vertex)
+                vertex_position = self.transform.transform_matrix.multiply_vector(vertex)
+                vertex_position /= vertex_position.w
+                # print("vertex position", vertex_position)
+                # print(vertex, vertex_position)
+                glVertex3f(vertex_position.x, vertex_position.y, vertex_position.z)
         glEnd()
-
-    def transform(self, transform_matrices: List[Mat3d]):
-        for transform_matrix in transform_matrices:
-            for i, vertex in enumerate(self.vertices):
-                self.vertices[i] = transform_matrix.multiply(vertex)
-
