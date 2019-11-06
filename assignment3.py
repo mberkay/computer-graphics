@@ -1,4 +1,4 @@
-# CENG 487 Assignment1 by
+# CENG 487 Assignment3 by
 # Mustafa Berkay Özkan
 # StudentId: 230201005
 # 11 2019
@@ -10,19 +10,14 @@
 import time
 
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 
 from camera import Camera
-from cylinder import Cylinder
-from ico_sphere import IcoSphere
+from shapes import *
 from input_controller import InputController
-from plane import Plane
-from shape import Shape
 from mat3d import *
 from transform import Transform
-from cube import Cube
-import sys
 
 # Some api in the chain is translating the keystrokes to this octal string
 # so instead of saying: ESCAPE = 27, we use the following.
@@ -37,7 +32,7 @@ old_time_since_start = 0
 cube2 = Shape(Cube(Vec3d(3, 2, 1)), transform=Transform(Vec3d(4, 0, 4)))
 cube = Shape(Cube(Vec3d(1, 1, 1)))
 sphere = Shape(IcoSphere(), transform=Transform(Vec3d(-4, 0, -1)))
-plane = Shape(Plane(2, 2, 2, 2), transform=Transform(Vec3d(3, 0, -2), Vec3d(45,0,0)))
+plane = Shape(Plane(2, 2, 2, 2), transform=Transform(Vec3d(3, 0, -2), Vec3d(45, 0, 0)))
 cylinder = Shape(Cylinder(), transform=Transform(Vec3d(2, 0, 0)))
 camera = Camera()
 

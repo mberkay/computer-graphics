@@ -1,4 +1,4 @@
-# CENG 487 Assignment1 by
+# CENG 487 Assignment3 by
 # Mustafa Berkay Özkan
 # StudentId: 230201005
 # 11 2019
