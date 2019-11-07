@@ -36,7 +36,7 @@ class Vec3d:
 
     def cross(self, vector):
         return Vec3d(self.y * vector.z - self.z * vector.y, self.z * vector.x - self.x * vector.z,
-                     self.x * vector.y - self.y * vector.x)
+                     self.x * vector.y - self.y * vector.x, self.w)
 
     def scale(self, scale_vector):
         """
@@ -141,3 +141,12 @@ class Vec3d:
 class Point(Vec3d):
     def __init__(self, x: float, y: float, z: float):
         super().__init__(x, y, z, 1)
+
+    def __sub__(self, other):
+        return Point(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __mul__(self, scalar):
+        return Point(scalar * self.x, scalar * self.y, scalar * self.z)
