@@ -85,6 +85,8 @@ class Vec3d:
         else:
             raise Exception(f"Can't add vector3 to type {type(vector)}")
 
+    __radd__ = __add__
+
     def __sub__(self, vector):
         if isinstance(vector, Vec3d):
             return self + (-vector)
