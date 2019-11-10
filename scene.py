@@ -47,10 +47,14 @@ class Scene:
                     glColor3f(0, 0, 0)
                 shape.draw(True)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        #
-        # glRasterPos2f(-6,4)
-        # for character in str("FPS:"):
-        #     glutBitmapCharacter(GLUT.GLUT_BITMAP_9_BY_15, ord(character))
+
+        # TODO fix GLUT BITMAP not found error
+        if len(self.selected_shapes) > 0:
+            glRasterPos2f(-6, -6)
+            text = str(f"Subdivision Level: {self.selected_shapes[-1].mesh.subdivision_level}")
+            # print(text)
+            # for character in text:
+            #     glutBitmapCharacter(GLUT.GLUT_BITMAP_9_BY_15, ord(character))+
 
     def add_shape(self, shape: Shape):
         self.__shapes.append(shape)

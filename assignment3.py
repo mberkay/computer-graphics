@@ -97,16 +97,10 @@ def DrawGLScene():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()  # Reset The View
     scene.display()
-    # glDisable(GL_DEPTH_TEST);
-    # glDepthFunc(GL_LESS);
-    # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    # glMatrixMode(GL_MODELVIEW)
 
     delta_time = elapsed_time()
 
-    # modelViewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
-    # glLoadMatrixf(modelViewMatrix)
-
+    # TODO fix Depth bug
     glBegin(GL_LINES)
     glColor(0,0,1)
     glVertex3f(0,0,100)
@@ -126,11 +120,6 @@ def DrawGLScene():
         # glVertex3f(0, i, 100)
     glEnd()
 
-
-    glRasterPos2f(-6,4)
-    print(delta_time)
-    for character in str("FPS:" + str((int(1 /(delta_time / 1000))))):
-        glutBitmapCharacter('GLUT_BITMAP_9_BY_15', ord(character))
     glutSwapBuffers()
 
 
