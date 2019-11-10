@@ -16,8 +16,8 @@ class Camera:
         self.target_object = Vec3d.zero()
 
     def reset(self):
-        self.transform = Transform()
-        self.transform.position.z = -10
+        self.transform = Transform(Vec3d(0, 4, -15))
+        # self.transform.position.z = -10
         self.target_object = Vec3d.zero()
 
     def update(self):
