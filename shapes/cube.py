@@ -37,7 +37,7 @@ class Cube(Mesh):
         if pivot == "center":
             self.center_pivot()
         for vertex in self.vertices:
-            vertex.scale(size)
+            vertex * size
 
         super().__init__(self.vertices, self.triangles)
 

@@ -5,6 +5,7 @@
 
 from typing import List
 
+from mesh2 import Mesh2, FaceType
 from transform import Transform
 from vec3d import Vec3d
 from mat3d import *
@@ -13,24 +14,46 @@ from OpenGL.GL import *
 
 
 class Shape:
-    def __init__(self, mesh: Mesh, transform: Transform = None):
+    def __init__(self, mesh: Mesh2, transform: Transform = None):
         if transform is None:
             transform = Transform()
         self.transform = transform
         self.mesh = mesh
 
-    def draw(self):
+    ''' There are two ways to draw: 
+            First one: using mesh.faces:
+                If mesh face type is Quad can convert face indexes to quad and draw that vertexes to screen
+            Second one: using mesh.indices:
+                It is already calculated respect to face type preference. Downside of it is cant use different colors 
+     '''
+
+    def draw(self, disable_face_color):
         self.transform.update()
-        glBegin(GL_TRIANGLES)
-        # print("transform matrix ", self.transform.transform_matrix)
-        for i in range(0, len(self.mesh.triangles), 3):
-            glColor3f(self.mesh.color[i].x, self.mesh.color[i].y, self.mesh.color[i].z)
-            for j in range(3):
-                vertex = self.mesh.vertices[self.mesh.triangles[i + j]]
-                # print("vertex ", vertex)
-                vertex_position = self.transform.transform_matrix.multiply_vector(vertex)
-                vertex_position /= vertex_position.w
-                # print("vertex position", vertex_position)
-                # print(vertex, vertex_position)
-                glVertex3f(vertex_position.x, vertex_position.y, vertex_position.z)
+        for face in self.mesh.faces:
+            glBegin(GL_POLYGON)
+
+            if not disable_face_color:
+                glColor3f(face.color.x, face.color.y, face.color.z)
+
+            if self.mesh.face_type is FaceType.QUAD:
+                face = face.to_quad()
+
+            for index in face:  # face.indexes. Check __getitem__ of face.py
+                pos = self.mesh.positions[index]
+                pos = self.transform.transform_matrix.multiply_vector(pos)
+                glVertex3f(pos.x, pos.y, pos.z)
+            glEnd()
+
+
+    def draw2(self):
+        self.transform.update()
+        if self.mesh.face_type is FaceType.TRIANGLE:
+            glBegin(GL_TRIANGLES)
+        else:
+            glBegin(GL_QUADS)
+        # glColor3f(0.5, 0, 0)
+        for index in self.mesh.indexes:
+            pos = self.mesh.positions[index]
+            pos = self.transform.transform_matrix.multiply_vector(pos)
+            glVertex3f(pos.x, pos.y, pos.z)
         glEnd()

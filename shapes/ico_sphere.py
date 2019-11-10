@@ -71,7 +71,6 @@ class IcoSphere(Mesh):
         t = [None] * len(v)
         for i in range(len(v)):
             t[i] = i
-
         self.vertices = v
         self.triangles = t
 
@@ -85,9 +84,9 @@ class IcoSphere(Mesh):
             p0 = vertices[i + 0]
             p2 = vertices[i + 1]
             p5 = vertices[i + 2]
-            p1 = ((p0 + p2) / 2).normalized * self.radius
-            p3 = ((p0 + p5) / 2).normalized * self.radius
-            p4 = ((p2 + p5) / 2).normalized * self.radius
+            p1 = ((p0 + p2) * .5).normalized * self.radius
+            p3 = ((p0 + p5) * .5).normalized * self.radius
+            p4 = ((p2 + p5) * .5).normalized * self.radius
 
             v[index] = p0
             v[index + 1] = p1
