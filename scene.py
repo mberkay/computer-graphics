@@ -2,9 +2,9 @@
 # Mustafa Berkay Özkan
 # StudentId: 230201005
 # 11 2019
-from OpenGL.GLUT import GLUT
-from OpenGL.raw.GLUT import glutBitmapCharacter
 
+
+import OpenGL.GLUT as glut
 from camera import Camera
 from OpenGL.GL import *
 
@@ -48,13 +48,16 @@ class Scene:
                 shape.draw(True)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-        # TODO fix GLUT BITMAP not found error
+        # TODO fix positioning
+        a  = glGetFloat(GL_CURRENT_RASTER_POSITION)
+        # print(a)
         if len(self.selected_shapes) > 0:
-            glRasterPos2f(-6, -6)
+            glColor3f(0,0,0)
+            glRasterPos3f(0, 0, 0)
             text = str(f"Subdivision Level: {self.selected_shapes[-1].mesh.subdivision_level}")
             # print(text)
-            # for character in text:
-            #     glutBitmapCharacter(GLUT.GLUT_BITMAP_9_BY_15, ord(character))+
+            for character in text:
+                glut.glutBitmapCharacter(glut.GLUT_BITMAP_HELVETICA_18, ord(character))
 
     def add_shape(self, shape: Shape):
         self.__shapes.append(shape)

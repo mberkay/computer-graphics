@@ -45,7 +45,8 @@ class Mesh2:
         # Revert subdivision if type is -1
         elif type is -1 and self.subdivision_level > 0:
             self.subdivision_level -= 1
-
+        if len(self.subdivisions) is 0:
+            return
         # If subdivision level changed then update position and face
         mesh = self.subdivisions[self.subdivision_level]
         self.faces = mesh.faces
