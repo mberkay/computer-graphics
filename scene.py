@@ -42,17 +42,17 @@ class Scene:
             glLineWidth(2)
             for shape in self.__shapes:
                 if shape in self.selected_shapes:
-                    glColor3f(1,1,0)
+                    glColor3f(1, 1, 0)
                 else:
                     glColor3f(0, 0, 0)
                 shape.draw(True)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         # TODO fix positioning
-        a  = glGetFloat(GL_CURRENT_RASTER_POSITION)
+        a = glGetFloat(GL_CURRENT_RASTER_POSITION)
         # print(a)
         if len(self.selected_shapes) > 0:
-            glColor3f(0,0,0)
+            glColor3f(0, 0, 0)
             glRasterPos3f(0, 0, 0)
             text = str(f"Subdivision Level: {self.selected_shapes[-1].mesh.subdivision_level}")
             # print(text)
