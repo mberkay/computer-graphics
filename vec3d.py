@@ -144,6 +144,9 @@ class Point(Vec3d):
     def __init__(self, x: float, y: float, z: float):
         super().__init__(x, y, z, 1)
 
+    def to_vector(self):
+        return Vec3d(self.x, self.y, self.z, 0)
+
     def __sub__(self, other):
         return Point(self.x - other.x, self.y - other.y, self.z - other.z)
 
