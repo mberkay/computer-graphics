@@ -24,7 +24,7 @@ class Edge:
         Does this edge contain any index of edge
         :return: True if a or b is equal to a or b of edge
         """
-        if other is type(Edge):
+        if isinstance(other, Edge):
             return self.contains_index(other.a) or self.contains_index(other.b)
 
     @staticmethod
