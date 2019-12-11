@@ -29,7 +29,15 @@ class Shape:
 
     def draw(self, disable_face_color):
         self.transform.update()
+        self.mesh.Normals()
         for face in self.mesh.faces:
+            start_pos = self.mesh.positions[face.indexes[0]]
+            start_pos = self.transform.transform_matrix.multiply_vector(start_pos)
+            end_pos = start_pos + face.normal
+            glBegin(GL_LINES)
+            glVertex3f(start_pos.x, start_pos.y, start_pos.z)
+            glVertex3f(end_pos.x, end_pos.y, end_pos.z)
+            glEnd()
             glBegin(GL_POLYGON)
 
             if not disable_face_color:
@@ -43,7 +51,6 @@ class Shape:
                 pos = self.transform.transform_matrix.multiply_vector(pos)
                 glVertex3f(pos.x, pos.y, pos.z)
             glEnd()
-
 
     def draw2(self):
         self.transform.update()
