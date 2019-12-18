@@ -5,16 +5,16 @@
 
 from typing import List
 
-from mesh2 import Mesh2, FaceType
+from mesh import Mesh, FaceType
 from transform import Transform
 from vec3d import Vec3d
 from mat3d import *
-from mesh import Mesh
+from mesh_deprecated import MeshDeprecated
 from OpenGL.GL import *
 
 
 class Shape:
-    def __init__(self, mesh: Mesh2, transform: Transform = None):
+    def __init__(self, mesh, transform: Transform = None):
         if transform is None:
             transform = Transform()
         self.transform = transform
@@ -27,19 +27,29 @@ class Shape:
                 It is already calculated respect to face type preference. Downside of it is cant use different colors 
      '''
 
+    def draw_winged(self, disable_face_color):
+        self.transform.update()
+        # self.mesh.Normals()
+        for face in self.mesh.faces:
+            # self.draw_normal(face)
+
+            glBegin(GL_POLYGON)
+            # if not disable_face_color:
+            #     glColor3f(face.color.x, face.color.y, face.color.z)
+
+            for vertex in face.vertices:  # face.indexes. Check __getitem__ of face.py
+                pos = vertex.position
+                pos = self.transform.transform_matrix.multiply_vector(pos)
+                glVertex3f(pos.x, pos.y, pos.z)
+            glEnd()
+
     def draw(self, disable_face_color):
         self.transform.update()
         self.mesh.Normals()
         for face in self.mesh.faces:
-            start_pos = self.mesh.positions[face.indexes[0]]
-            start_pos = self.transform.transform_matrix.multiply_vector(start_pos)
-            end_pos = start_pos + face.normal
-            glBegin(GL_LINES)
-            glVertex3f(start_pos.x, start_pos.y, start_pos.z)
-            glVertex3f(end_pos.x, end_pos.y, end_pos.z)
-            glEnd()
-            glBegin(GL_POLYGON)
+            # self.draw_normal(face)
 
+            glBegin(GL_POLYGON)
             if not disable_face_color:
                 glColor3f(face.color.x, face.color.y, face.color.z)
 
@@ -51,6 +61,15 @@ class Shape:
                 pos = self.transform.transform_matrix.multiply_vector(pos)
                 glVertex3f(pos.x, pos.y, pos.z)
             glEnd()
+
+    def draw_normal(self, face):
+        start_pos = self.mesh.positions[face.indexes[0]]
+        start_pos = self.transform.transform_matrix.multiply_vector(start_pos)
+        end_pos = start_pos + face.normal
+        glBegin(GL_LINES)
+        glVertex3f(start_pos.x, start_pos.y, start_pos.z)
+        glVertex3f(end_pos.x, end_pos.y, end_pos.z)
+        glEnd()
 
     def draw2(self):
         self.transform.update()
