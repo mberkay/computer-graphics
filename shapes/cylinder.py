@@ -3,11 +3,11 @@
 # StudentId: 230201005
 # 11 2019
 
-from mesh import Mesh
+from mesh_deprecated import MeshDeprecated
 from vec3d import *
 
 
-class Cylinder(Mesh):
+class Cylinder(MeshDeprecated):
     def __init__(self, axis_division=8, radius=1, height=1, height_cuts=0):
         # Cylinder sides should be less than 64, even positive int
         self.axis_division = axis_division

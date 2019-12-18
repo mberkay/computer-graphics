@@ -3,11 +3,11 @@
 # StudentId: 230201005
 # 11 2019
 from face import Face
-from mesh2 import Mesh2, FaceType
+from mesh import Mesh, FaceType
 from vec3d import Point, Vec3d
 
 
-class Cube(Mesh2):
+class Cube(Mesh):
     def __init__(self, size=Vec3d.one(), pivot="center", face_type=FaceType.TRIANGLE):
         positions = [position * 2 for position in Cube.__positions]
         faces = [Face(Cube.__triangles[i:i + 6]) for i in range(0, 36, 6)]

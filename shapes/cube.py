@@ -3,11 +3,11 @@
 # StudentId: 230201005
 # 11 2019
 
-from mesh import Mesh
+from mesh_deprecated import MeshDeprecated
 from vec3d import *
 
 
-class Cube(Mesh):
+class Cube(MeshDeprecated):
     def __init__(self, size=Vec3d.one(), pivot="center"):
         self.vertices = [
             Point(0, 0, 0),  # 0

@@ -3,11 +3,11 @@
 # StudentId: 230201005
 # 11 2019
 
-from mesh import Mesh
+from mesh_deprecated import MeshDeprecated
 from vec3d import *
 
 
-class IcoSphere(Mesh):
+class IcoSphere(MeshDeprecated):
     def __init__(self, subdivision=1, radius=1):
         t = (1 + math.sqrt(5)) / 2  # Golden Ratio
 

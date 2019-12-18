@@ -3,11 +3,11 @@
 # StudentId: 230201005
 # 11 2019
 
-from mesh import Mesh
+from mesh_deprecated import MeshDeprecated
 from vec3d import *
 
 
-class Plane(Mesh):
+class Plane(MeshDeprecated):
     def __init__(self, height=1, width=1, height_cuts=1, width_cuts=1,
                  look_up: Vec3d = Vec3d(0, 0, 1)):
         self.vertices = []
