@@ -27,6 +27,10 @@ class Edge:
         if isinstance(other, Edge):
             return self.contains_index(other.a) or self.contains_index(other.b)
 
+    def is_symmetric(self, other):
+        if isinstance(other, Edge):
+            return self.a is other.b and self.b is other.a
+
     @staticmethod
     def get_indexes(edges):
         if type(edges) is not list:
