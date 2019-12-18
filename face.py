@@ -12,6 +12,7 @@ class Face:
     def __init__(self, indexes):
         self.__indexes = None
         self.__edges = None
+        self.normal = None
         self.indexes = indexes
         self.color = Vec3d(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) / 255
 
@@ -37,6 +38,19 @@ class Face:
 
     def is_quad(self):
         return self.edges is not None and len(self.edges) is 4
+
+    # @property
+    # def normal(self):
+    #     if self.__normal is None:
+    #         self.__calculate_normal()
+    #     return self.__normal
+    #
+    # def __calculate_normal(self):
+    #     first_edge = self.edges[0]
+    #     second_edge = self.edges[1]
+    #
+    #     vector_a = self
+    #     self.__normal =
 
     @property
     def indexes(self):
@@ -91,3 +105,9 @@ class Face:
 
     def __getitem__(self, item):
         return self.indexes[item]
+
+    def __str__(self):
+        return f"[Indexes: {self.indexes}, Edges: {self.edges}]"
+
+    def __repr__(self):
+        return f"Face: {str(self)}"

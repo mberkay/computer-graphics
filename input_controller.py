@@ -5,7 +5,7 @@
 
 from OpenGL.GLUT import *
 
-from mesh2 import FaceType
+from mesh import FaceType
 from scene import DrawMode
 from vec3d import Vec3d, Point
 

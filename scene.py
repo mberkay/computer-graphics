@@ -35,7 +35,7 @@ class Scene:
         if self.draw_mode is DrawMode.SHADED or self.draw_mode is DrawMode.WIRED_SHADED:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
             for shape in self.__shapes:
-                shape.draw(False)
+                shape.draw_winged(False)
 
         if self.draw_mode is DrawMode.WIRED or self.draw_mode is DrawMode.WIRED_SHADED:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
@@ -45,19 +45,19 @@ class Scene:
                     glColor3f(1, 1, 0)
                 else:
                     glColor3f(0, 0, 0)
-                shape.draw(True)
+                shape.draw_winged(True)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-        # TODO fix positioning
-        a = glGetFloat(GL_CURRENT_RASTER_POSITION)
-        # print(a)
-        if len(self.selected_shapes) > 0:
-            glColor3f(0, 0, 0)
-            glRasterPos3f(0, 0, 0)
-            text = str(f"Subdivision Level: {self.selected_shapes[-1].mesh.subdivision_level}")
-            # print(text)
-            for character in text:
-                glut.glutBitmapCharacter(glut.GLUT_BITMAP_HELVETICA_18, ord(character))
+        # # TODO fix positioning
+        # a = glGetFloat(GL_CURRENT_RASTER_POSITION)
+        # # print(a)
+        # if len(self.selected_shapes) > 0:
+        #     glColor3f(0, 0, 0)
+        #     glRasterPos3f(0, 0, 0)
+        #     text = str(f"Subdivision Level: {self.selected_shapes[-1].mesh.subdivision_level}")
+        #     # print(text)
+        #     for character in text:
+        #         glut.glutBitmapCharacter(glut.GLUT_BITMAP_HELVETICA_18, ord(character))
 
     def add_shape(self, shape: Shape):
         self.__shapes.append(shape)

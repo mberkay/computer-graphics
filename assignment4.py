@@ -14,17 +14,21 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 from camera import Camera
+from catmull_clark import catmull_clark, cmc_subdiv
 from obj_parser import ObjParser
 from scene import Scene
 from shapes import *
 from input_controller import InputController
 from mat3d import *
 from transform import Transform
-from mesh2 import *
+from mesh import *
 from face import Face
 from cube import Cube as cb
+from experimentalplane import PlaneExperimental
+
 # Some api in the chain is translating the keystrokes to this octal string
 # so instead of saying: ESCAPE = 27, we use the following.
+from winged_edge.winged_edge_converter import indexed_face_set_to_winged_edge
 
 ESCAPE = '\033'
 
@@ -33,26 +37,21 @@ window = 0
 
 old_time_since_start = 0
 
-# cube2 = Shape(Cube(Vec3d(3, 2, 1)), transform=Transform(Vec3d(4, 0, 4)))
-# cube = Shape(Cube(Vec3d(1, 1, 1)))
-# sphere = Shape(IcoSphere(radius=2), transform=Transform(Vec3d(-4, 0, -1)))
-# sphere2 = Shape(Cylinder(), transform=Transform(Vec3d(0, 0, 0)))
-#
-# plane = Shape(Plane(2, 2, 2, 2), transform=Transform(Vec3d(3, 0, -2), Vec3d(45, 0, 0)))
-# cylinder = Shape(Cylinder(), transform=Transform(Vec3d(0, 0, 0)))
 scene = Scene()
 camera = Camera()
 scene.add_camera(camera)
 
-print(sys.argv[1])
-name, points, faces = ObjParser.parse(sys.argv[1])
-test = Shape(Mesh2(points, faces))
-test2 = Shape(cb())
-scene.add_shape(test)
-scene.add_shape(test2)
+if len(sys.argv) > 1:
+    name, points, faces = ObjParser.parse(sys.argv[1])
+    read_mesh = Mesh(points, faces)
+    read_shape = Shape(read_mesh)
 
-# test = Shape(Mesh2(v))
-# shapes = [cube, cylinder, plane, sphere]
+    winged_mesh = indexed_face_set_to_winged_edge(read_mesh)
+    wiinged_shape = Shape(winged_mesh)
+
+    catmull_clark(winged_mesh)
+    # cmc_subdiv(winged_mesh)
+    scene.add_shape(wiinged_shape)
 
 
 # A general OpenGL initialization function.  Sets all of the initial parameters.
@@ -97,17 +96,17 @@ def DrawGLScene():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()  # Reset The View
     scene.display()
-
+    # test7.draw(False)
     delta_time = elapsed_time()
 
     # TODO fix Depth bug
     glBegin(GL_LINES)
-    glColor(0,0,1)
-    glVertex3f(0,0,100)
-    glVertex3f(0,0,-100)
-    glColor(1,0,0)
-    glVertex3f(100,0,0)
-    glVertex3f(-100,0,-0)
+    glColor(0, 0, 1)
+    glVertex3f(0, 0, 100)
+    glVertex3f(0, 0, -100)
+    glColor(1, 0, 0)
+    glVertex3f(100, 0, 0)
+    glVertex3f(-100, 0, -0)
     glColor(0.3, 0.3, 0.3)
     for i in range(-100, 100, 1):
         glVertex3f(i, 0, 100)
@@ -153,8 +152,6 @@ def main():
     # Register the function called when the keyboard is pressed.
     input_controller = InputController(scene)
 
-
-
     # Initialize our window.
     InitGL(640, 480)
 
@@ -181,6 +178,9 @@ print("'T' to change face type of selected shapes to TRIANGLE")
 
 print("Scene Controls:")
 print("'W' to traverse between draw modes")
+print("\033[93m" + "***")
+print("READ ME: Implemented half edge and 'indexed face set' to 'half edge' converter, have a bug in catmull clark that i couldn't continue. I will fix and complete it asap")
+print("***")
 
 # print("Bigger cube will follow him, bigger cube can not be selected")
 main()
