@@ -13,6 +13,9 @@ class Vec3d:
         self.z = z
         self.w = w
 
+    def to_array(self):
+        return [self.x, self.y, self.z, self.w]
+
     @property
     def magnitude(self):
         return math.sqrt(self.dot(self))
