@@ -3,6 +3,7 @@
 # StudentId: 230201005
 # 11 2019
 
+
 from mat3d import *
 
 
@@ -14,6 +15,11 @@ class Transform:
         self.transform_matrix = IdentityMatrix()
         self.transform_matrix_stack = []
         self.rotation_matrix = ZeroMatrix()
+        # self._forward_point = self.position + Vec3d.forward()
+
+    # @property
+    # def forward_point(self):
+    #     return self.position + self.rotation_matrix.multiply_vector(Vec3d.forward() * 5)
 
     @property
     def rotation(self):
@@ -52,12 +58,26 @@ class Transform:
     # Add stack in order S R T so T * R * S * V will scale first then rotate then transform
     def update(self):
         self.rotation_matrix = Mat3d.rotation_matrix(self.rotation * (math.pi / 180))
+        # axis, angle = Mat3d.euler_to_axis_angle(self.rotation, AngleType.DEGREE)
+        # self.rotation_matrix = ArbitraryRotationAxis(axis, angle)
         self.transform_matrix_stack.insert(0, ScalingMatrix(self.scale))
         self.add_matrix_to_stack(self.rotation_matrix)
         self.add_matrix_to_stack(TranslationMatrix(self.position))
         self.transform_matrix = IdentityMatrix()
         self.calculate_transform_matrix()
         self.transform_matrix_stack = []
+
+        # start_pos = self.position
+        # end_pos = self.position + self.right
+        #
+        # glBegin(GL_LINES)
+        # glVertex3f(start_pos.x, start_pos.y, start_pos.z)
+        # glVertex3f(end_pos.x, end_pos.y, end_pos.z)
+        # glEnd()
+
+        # glTranslate(self.forward_point.x, self.forward_point.y, self.forward_point.z)
+        # # gluSphere(gluNewQuadric(), 0.1, 10, 10)
+        # glTranslate(-self.forward_point.x, -self.forward_point.y, -self.forward_point.z)
 
     def add_matrix_to_stack(self, matrix):
         self.transform_matrix_stack.append(matrix)
@@ -70,14 +90,16 @@ class Transform:
 
     @property
     def forward(self):
-        return self.rotation_matrix.multiply_vector(Vec3d.forward())  # TODO use quaternions
+        return self.rotation_matrix.multiply_vector(Vec3d.forward()).normalized  # TODO use quaternions
 
     @property
     def right(self):
+        # return self.forward.cross(Vec3d.up()).normalized
         return Vec3d.up().cross(self.forward).normalized
 
     @property
     def up(self):
+        # return self.right.cross(self.forward).normalized
         return self.forward.cross(self.right).normalized
 
 
