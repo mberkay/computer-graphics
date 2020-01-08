@@ -3,11 +3,11 @@
 # StudentId: 230201005
 # 11 2019
 
+from copy import deepcopy
 from typing import List
 
 from face import Face
-from vec3d import Point, Vec3d
-from copy import deepcopy
+from vec3d import Point
 
 
 class FaceType:
@@ -46,30 +46,43 @@ class Mesh:
     #         vector_b = (self.positions[second_edge.b] - self.positions[second_edge.a]).to_vector()
     #
     #         face.normal = vector_a.cross(vector_b).normalized
+    def FacePoints(self):
+        for face in self.faces:
+            total = Point(0, 0, 0)
+            count = 0
+            for index in face.indexes:
+                total += self.positions[index]
+                count += 1
+            face.face_point = total / count
 
     def Normals(self):
         # sum = Vec3d.zero()
         for face in self.faces:
+            i0 = face.indexes[0]
+            i1 = face.indexes[1]
+            i2 = face.indexes[2]
+
+            vector_a = (self.positions[i1] - self.positions[i0]).to_vector()
+            vector_b = (self.positions[i2] - self.positions[i1]).to_vector()
             # for edge in face.edges:
             #    sum += self.positions[edge.a] + self.positions[edge.b]
             # start_point = sum / (len(face.edges) * 2)
 
-            first_edge = face.edges[0]
-            for edge in face.edges:
-                if first_edge.contains_edge(edge) and edge is not first_edge:
-                    second_edge = edge
-                    break
-
-            # connected_edges = [edge for edge in face.edges if first_edge.contains_edge(edge) and edge is not first_edge]
-
-            vector_a = (self.positions[first_edge.b] - self.positions[first_edge.a]).to_vector()
-            vector_b = (self.positions[second_edge.b] - self.positions[second_edge.a]).to_vector()
+            # first_edge = face.edges[0]
+            # for edge in face.edges:
+            #     if first_edge.contains_edge(edge) and edge is not first_edge:
+            #         second_edge = edge
+            #         break
+            #
+            # # connected_edges = [edge for edge in face.edges if first_edge.contains_edge(edge) and edge is not first_edge]
+            #
+            # vector_a = (self.positions[first_edge.b] - self.positions[first_edge.a]).to_vector()
+            # vector_b = (self.positions[second_edge.b] - self.positions[second_edge.a]).to_vector()
 
             face.normal = vector_a.cross(vector_b).normalized
 
     def subdivide2(self, type):
         pass
-
 
     def subdivide(self, type):
         # Subdivide if type is 1 and subdivision level is max 3
@@ -96,7 +109,7 @@ class Mesh:
         mesh = self.subdivisions[self.subdivision_level]
         self.faces = mesh.faces
         self.positions = mesh.positions
-        self.__invalidate_indexes()
+        self.invalidate_indexes()
 
     # TODO support triangle subdivision too
     def create_subdivided_mesh(self, positions, faces, face_type):
@@ -188,5 +201,5 @@ class Mesh:
         else:
             return triangles, FaceType.TRIANGLE
 
-    def __invalidate_indexes(self):
+    def invalidate_indexes(self):
         self.__indexes = None
