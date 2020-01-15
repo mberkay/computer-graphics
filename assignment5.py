@@ -18,6 +18,7 @@ from lights import *
 from mat3d import *
 from material import *
 from obj_parser import ObjParser
+from shapes import *
 from scene import Scene
 from transform import Transform
 
@@ -33,6 +34,8 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+
 ESCAPE = '\033'
 
 # Number of the glut window.
@@ -44,52 +47,12 @@ scene = Scene()
 camera = Camera()
 scene.add_camera(camera)
 
-if len(sys.argv) > 1:
-    shapes = ObjParser.parse(sys.argv[1])
-    for shape in shapes:
-        if shape.name == "ShortBox" or shape.name == "TallBox" or shape.name == "Ceiling" or shape.name == "Floor" or shape.name == "BackWall":
-            shape.material = yellow_rubber
-        elif shape.name == "RightWall":
-            shape.material = red_rubber
-        elif shape.name == "LeftWall":
-            shape.material = green_rubber
-        shape.transform = Transform(scale=Vec3d(0.1, 0.1, 0.1), rotation=Vec3d(0, 180, 0))
-        scene.add_shape(shape)
-
 # cube = Shape(Cube(), Transform(position=Vec3d(-10,-10,10), rotation=Vec3d(0, -0, 0), scale=Vec3d(1,1,1)))
-# cube = Shape("cube", Cube())
-# cube.material = green_rubber
-# scene.add_shape(cube)
-# light = DirectionalLight(ambient=[0.2, 0.2, 0.2, 1],
-#                   diffuse=[1, 1, 1, 1],
-#                   specular=[1, 1, 1, 1],
-#                   transform=Transform(position=Vec3d(0, 0, -5), rotation=Vec3d(0, 0, 0)))
+shader = Shader()
+cube = Shape("cube", Cube(), Transform(position=Vec3d(-10, 0, 0)))
+cube.material = green_rubber
+scene.add_shape(cube)
 
-light = SpotLight(ambient=[0.2, 0.2, 0.2, 1],
-                  diffuse=[1, 1, 1, 1],
-                  specular=[1, 1, 1, 1],
-                  angle=30,
-                  distance=20,
-                  transform=Transform(position=Vec3d(0, 0, -5), rotation=Vec3d(0, 0, 0)))
-scene.add_shape(light)
-scene.add_light(light)
-
-light2 = SpotLight(ambient=[0.2, 0.2, 0.2, 1],
-                   diffuse=[1, 1, 1, 1],
-                   specular=[1, 1, 1, 1],
-                   angle=15,
-                   distance=20,
-                   transform=Transform(position=Vec3d(0, 10, 1), rotation=Vec3d(100, 0, 0)))
-scene.add_shape(light2)
-scene.add_light(light2)
-
-
-# light2 = DirectionalLight(ambient=[0.2, 0.2, 0.2, 1],
-#               diffuse=[1, 0, 0, 1],
-#               specular=[1, 1, 1, 1],
-#               transform=Transform(position=Vec3d(0, 0, 0), rotation=Vec3d(0, 0, 0)))
-# scene.add_shape(light2)
-# scene.add_light(light2)
 
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 def InitGL(Width, Height):  # We call this right after our OpenGL window is created.
