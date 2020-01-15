@@ -3,8 +3,14 @@
 # StudentId: 230201005
 # 11 2019
 
-from vec3d import Vec3d
 import math
+
+from vec3d import Vec3d
+
+
+class AngleType:
+    RADIAN = 0
+    DEGREE = 1
 
 
 class Mat3d:
@@ -64,6 +70,39 @@ class Mat3d:
                 z = 0
             return Vec3d(x, y, z) * (180 / math.pi)
 
+    # https: // www.euclideanspace.com / maths / geometry / rotations / conversions / eulerToAngle / index.htm
+    @staticmethod
+    def euler_to_axis_angle(euler_angles: Vec3d, given_angle_type=AngleType.RADIAN):  # bank, heading, attitude
+        if given_angle_type is AngleType.DEGREE:
+            euler_angles *= math.pi / 180
+        bank = euler_angles.x
+        heading = euler_angles.y
+        attitude = euler_angles.z
+
+        c1 = math.cos(heading / 2)
+        c2 = math.cos(attitude / 2)
+        c3 = math.cos(bank / 2)
+        s1 = math.sin(heading / 2)
+        s2 = math.sin(attitude / 2)
+        s3 = math.sin(bank / 2)
+        c1c2 = c1 * c2
+        s1s2 = s1 * s2
+        w = c1c2 * c3 - s1s2 * s3
+        x = c1c2 * s3 + s1s2 * c3
+        y = s1 * c2 * c3 + c1 * s2 * s3
+        z = c1 * s2 * c3 - s1 * c2 * s3
+        angle = 2 * math.acos(w)
+        norm = x ** 2 + y ** 2 + z ** 2
+        if norm < 0.000000001:
+            x = 1
+            y = z = 0
+            norm = 1
+        else:
+            norm = math.sqrt(norm)
+        x /= norm
+        y /= norm
+        z /= norm
+        return Vec3d(x, y, z), angle
 
     @staticmethod
     def rotation_matrix_to_euler_angles2(rotation_matrix):
@@ -128,9 +167,15 @@ class ArbitraryRotationAxis(Mat3d):
         ry = axis.y
         rz = axis.z
         super().__init__(
-            Vec3d(math.cos(angle) + rx ** 2 * (1 - math.cos(angle)), rx * ry * (1 - math.cos(angle)) - rz * math.sin(angle), rx * rz * (1 - math.cos(angle)) + ry * math.sin(angle), 0),
-            Vec3d(ry * rx * (1 - math.cos(angle)) + rz * math.sin(angle), math.cos(angle) + ry ** 2 * (1 - math.cos(angle)), ry * rz * (1 - math.cos(angle)) - rx * math.sin(angle), 0),
-            Vec3d(rz * rx * (1 - math.cos(angle)) - ry * math.sin(angle), rz * ry * (1 - math.cos(angle)) + rx * math.sin(angle), math.cos(angle) + rz ** 2 * (1 - math.cos(angle)), 0),
+            Vec3d(math.cos(angle) + rx ** 2 * (1 - math.cos(angle)),
+                  rx * ry * (1 - math.cos(angle)) - rz * math.sin(angle),
+                  rx * rz * (1 - math.cos(angle)) + ry * math.sin(angle), 0),
+            Vec3d(ry * rx * (1 - math.cos(angle)) + rz * math.sin(angle),
+                  math.cos(angle) + ry ** 2 * (1 - math.cos(angle)),
+                  ry * rz * (1 - math.cos(angle)) - rx * math.sin(angle), 0),
+            Vec3d(rz * rx * (1 - math.cos(angle)) - ry * math.sin(angle),
+                  rz * ry * (1 - math.cos(angle)) + rx * math.sin(angle),
+                  math.cos(angle) + rz ** 2 * (1 - math.cos(angle)), 0),
             Vec3d(0, 0, 0, 1))
 
 

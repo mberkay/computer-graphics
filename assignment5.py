@@ -9,27 +9,30 @@
 # To get proper GLUT support on linux don't forget to install python-opengl package using apt
 import time
 
-from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 from camera import Camera
-from catmull_clark import catmull_clark, cmc_subdiv
+from input_controller import InputController
+from lights import *
+from mat3d import *
+from material import *
 from obj_parser import ObjParser
 from scene import Scene
-from shapes import *
-from input_controller import InputController
-from mat3d import *
 from transform import Transform
-from mesh import *
-from face import Face
-from cube import Cube as cb
-from experimentalplane import PlaneExperimental
+
 
 # Some api in the chain is translating the keystrokes to this octal string
 # so instead of saying: ESCAPE = 27, we use the following.
-from winged_edge.winged_edge_converter import indexed_face_set_to_winged_edge
-
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 ESCAPE = '\033'
 
 # Number of the glut window.
@@ -42,17 +45,51 @@ camera = Camera()
 scene.add_camera(camera)
 
 if len(sys.argv) > 1:
-    name, points, faces = ObjParser.parse(sys.argv[1])
-    read_mesh = Mesh(points, faces)
-    read_shape = Shape(read_mesh)
+    shapes = ObjParser.parse(sys.argv[1])
+    for shape in shapes:
+        if shape.name == "ShortBox" or shape.name == "TallBox" or shape.name == "Ceiling" or shape.name == "Floor" or shape.name == "BackWall":
+            shape.material = yellow_rubber
+        elif shape.name == "RightWall":
+            shape.material = red_rubber
+        elif shape.name == "LeftWall":
+            shape.material = green_rubber
+        shape.transform = Transform(scale=Vec3d(0.1, 0.1, 0.1), rotation=Vec3d(0, 180, 0))
+        scene.add_shape(shape)
 
-    winged_mesh = indexed_face_set_to_winged_edge(read_mesh)
-    wiinged_shape = Shape(winged_mesh)
+# cube = Shape(Cube(), Transform(position=Vec3d(-10,-10,10), rotation=Vec3d(0, -0, 0), scale=Vec3d(1,1,1)))
+# cube = Shape("cube", Cube())
+# cube.material = green_rubber
+# scene.add_shape(cube)
+# light = DirectionalLight(ambient=[0.2, 0.2, 0.2, 1],
+#                   diffuse=[1, 1, 1, 1],
+#                   specular=[1, 1, 1, 1],
+#                   transform=Transform(position=Vec3d(0, 0, -5), rotation=Vec3d(0, 0, 0)))
 
-    catmull_clark(winged_mesh)
-    # cmc_subdiv(winged_mesh)
-    scene.add_shape(wiinged_shape)
+light = SpotLight(ambient=[0.2, 0.2, 0.2, 1],
+                  diffuse=[1, 1, 1, 1],
+                  specular=[1, 1, 1, 1],
+                  angle=30,
+                  distance=20,
+                  transform=Transform(position=Vec3d(0, 0, -5), rotation=Vec3d(0, 0, 0)))
+scene.add_shape(light)
+scene.add_light(light)
 
+light2 = SpotLight(ambient=[0.2, 0.2, 0.2, 1],
+                   diffuse=[1, 1, 1, 1],
+                   specular=[1, 1, 1, 1],
+                   angle=15,
+                   distance=20,
+                   transform=Transform(position=Vec3d(0, 10, 1), rotation=Vec3d(100, 0, 0)))
+scene.add_shape(light2)
+scene.add_light(light2)
+
+
+# light2 = DirectionalLight(ambient=[0.2, 0.2, 0.2, 1],
+#               diffuse=[1, 0, 0, 1],
+#               specular=[1, 1, 1, 1],
+#               transform=Transform(position=Vec3d(0, 0, 0), rotation=Vec3d(0, 0, 0)))
+# scene.add_shape(light2)
+# scene.add_light(light2)
 
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 def InitGL(Width, Height):  # We call this right after our OpenGL window is created.
@@ -95,10 +132,30 @@ def DrawGLScene():
     # Clear The Screen And The Depth Buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()  # Reset The View
-    scene.display()
     # test7.draw(False)
     delta_time = elapsed_time()
+    math.sin(time.time()) * 10
+    mat_specular = [1.0, 1.0, 1.0, 1.0]
 
+    mat_shininess = [50.0]
+
+    time.time()
+    # light_position = [math.sin(time.time()) *10, 0, math.cos(time.time()) *10, 0]
+    light_position = [1, 0, 0, 0]
+    # cube.transform.position = Vec3d(math.sin(time.time()) *10, 0, math.cos(time.time()) *10)
+    # glClearColor(0.0, 0.0, 0.0, 0.0)
+    # glShadeModel(GL_SMOOTH)
+
+    # glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular)
+    # glMaterialfv(GL_BACK, GL_SHININESS, mat_shininess)
+    # glLoadIdentity()
+
+    scene.display()
+    # glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+    # glEnable(GL_LIGHT0)
+    # glPolygonMode(GL_FRONT_FACE, GL_)
+    # glEnable(GL_DEPTH_TEST)
+    glDisable(GL_LIGHTING)
     # TODO fix Depth bug
     glBegin(GL_LINES)
     glColor(0, 0, 1)
@@ -161,7 +218,7 @@ def main():
 
 # Print message to console, and kick off the main to get it rolling.
 print("Hit ESC key to quit.")
-print("Camera Controls:")
+print(f"{bcolors.HEADER} Camera Controls:{bcolors.ENDC}")
 print("Mouse wheel click to move camera to any direction")
 print("Alt + Mouse Right Click to zoom in looking direction")
 print("Mouse Right Click to rotate camera to look around")
@@ -169,18 +226,23 @@ print("Alt + Mouse Left Click to rotate camera around selected object")
 print("F to focus camera on selected object")
 print("R to reset camera")
 
-print("Shape Controls:")
+print(f"{bcolors.HEADER} Shape Controls: {bcolors.ENDC}")
+print(f"{bcolors.WARNING}Selected objects can bee seen in wired mode {bcolors.ENDC}")
 print("0-9 Numbers to select/deselect shapes, using alt can select multiple shapes")
 print("Arrow keys to move selected objects in x and z axises")
+print(f"{bcolors.WARNING} [NEW] ALT + Arrow keys to rotate selected objects. {bcolors.ENDC}")
 print("+ - to subdivide or undo subdivision of selected shapes")
 print("'Q' to change face type of selected shapes to QUAD if shape supports")
 print("'T' to change face type of selected shapes to TRIANGLE")
-
-print("Scene Controls:")
+print(f"{bcolors.WARNING} [NEW] 'A' to start/stop animation of first light {bcolors.ENDC}")
+print(f"{bcolors.WARNING} [NEW] 'G' to enable/disable normal drawing {bcolors.ENDC}")
+print(f"{bcolors.HEADER} Scene Controls:{bcolors.ENDC}")
 print("'W' to traverse between draw modes")
-print("\033[93m" + "***")
-print("READ ME: Implemented half edge and 'indexed face set' to 'half edge' converter, have a bug in catmull clark that i couldn't continue. I will fix and complete it asap")
-print("***")
+
+# print("\033[93m" + "***")
+# print(
+#     "READ ME: Implemented half edge and 'indexed face set' to 'half edge' converter, have a bug in catmull clark that i couldn't continue. I will fix and complete it asap")
+# print("***")
 
 # print("Bigger cube will follow him, bigger cube can not be selected")
 main()

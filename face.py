@@ -4,6 +4,7 @@
 # 11 2019
 import random
 from typing import List
+
 from edge import Edge
 from vec3d import Vec3d
 
@@ -13,6 +14,7 @@ class Face:
         self.__indexes = None
         self.__edges = None
         self.normal = None
+        self.face_point = None
         self.indexes = indexes
         self.color = Vec3d(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) / 255
 

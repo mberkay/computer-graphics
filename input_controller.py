@@ -7,6 +7,7 @@ from OpenGL.GLUT import *
 
 from mesh import FaceType
 from scene import DrawMode
+from shapes import Shape
 from vec3d import Vec3d, Point
 
 
@@ -86,7 +87,12 @@ class InputController:
             self.change_face_type_of_selected_shapes(FaceType.QUAD)
         elif key == b't':
             self.change_face_type_of_selected_shapes(FaceType.TRIANGLE)
-
+        elif key == b'a':
+            # self.animate_light()
+            self.scene.should_animate = not self.scene.should_animate
+        elif key == b'g':
+            for shape in self.scene.get_shapes():
+                shape.should_draw_normals = not shape.should_draw_normals
         elif b'0' <= key <= b'9':
             self.change_selected_shapes(int(key))
         elif key == b'\x1b':
@@ -95,16 +101,28 @@ class InputController:
     def process_special_input(self, key, x, y):
         # Left Arrow
         if key == 100:
-            self.translate_selected_shapes(-1, 0)
+            if self.is_alt_pressed:
+                self.rotate_selected_shapes(0, -5)
+            else:
+                self.translate_selected_shapes(-1, 0)
         # Up Arrow
         elif key == 101:
-            self.translate_selected_shapes(0, 1)
+            if self.is_alt_pressed:
+                self.rotate_selected_shapes(5, 0)
+            else:
+                self.translate_selected_shapes(0, 1)
         # Right Arrow
         elif key == 102:
-            self.translate_selected_shapes(1, 0)
+            if self.is_alt_pressed:
+                self.rotate_selected_shapes(0, 5)
+            else:
+                self.translate_selected_shapes(1, 0)
         # Down Arrow
         elif key == 103:
-            self.translate_selected_shapes(0, -1)
+            if self.is_alt_pressed:
+                self.rotate_selected_shapes(-5, 0)
+            else:
+                self.translate_selected_shapes(0, -1)
         # Alt
         elif key == 116:
             self.is_alt_pressed = True
@@ -136,7 +154,8 @@ class InputController:
 
     def change_face_type_of_selected_shapes(self, face_type):
         for shape in self.scene.selected_shapes:
-            shape.mesh.face_type = face_type
+            if isinstance(shape, Shape):
+                shape.mesh.face_type = face_type
 
     def change_draw_mode(self):
         draw_mode = self.scene.draw_mode
@@ -146,9 +165,15 @@ class InputController:
         for shape in self.scene.selected_shapes:
             shape.transform.translate(Vec3d(x, 0, z))
 
+    def rotate_selected_shapes(self, up, right):
+        for shape in self.scene.selected_shapes:
+            shape.transform.rotate_axis(shape.transform.right, up)
+            shape.transform.rotate_axis(shape.transform.up, right)
+
     def subdivide_selected_shapes(self, type):
         for shape in self.scene.selected_shapes:
             shape.mesh.subdivide(type)
+            # shape.mesh.subdivide2(type)
 
     def focus_active_shape(self):
         focus_point = self.find_focus_point()
@@ -177,5 +202,3 @@ class InputController:
                 self.scene.remove_shape_from_selected_shapes(shape)
             else:
                 self.scene.selected_shapes = [shape]
-
-
