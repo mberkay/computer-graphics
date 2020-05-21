@@ -6,7 +6,7 @@
 from OpenGL.GL import *
 
 
-class Program:
+class Shader:
     def __init__(self, file_path, shader_type):
         self.id = glCreateShader(shader_type)
         with open(file_path, "r") as code:

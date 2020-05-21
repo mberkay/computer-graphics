@@ -4,6 +4,7 @@
 # 11 2019
 
 import math
+import numpy
 
 
 class Vec3d:
@@ -12,6 +13,14 @@ class Vec3d:
         self.y = y
         self.z = z
         self.w = w
+        self._np_vector = None
+
+    # np_vec3d works like cache, operations done in individual floats x, y, z
+    @property
+    def np_vec3d(self):
+        if self._np_vector is None:
+            self._np_vector = numpy.array(self.to_array(), dtype="float32")
+        return self._np_vector
 
     def to_array(self):
         return [self.x, self.y, self.z, self.w]
@@ -25,7 +34,7 @@ class Vec3d:
     @property
     def normalized(self):
         if self.magnitude == 0:
-            return self
+            raise ZeroDivisionError
         return self / self.magnitude
 
     def dot(self, vector):
@@ -49,10 +58,18 @@ class Vec3d:
         self.y *= scale_vector.y
         self.z *= scale_vector.z
 
+        # Invalidate np array so it can be recalculated when needed
+        self._np_vector = None
+
     def project(self, on_vector):
         magnitude_square = on_vector.dot(on_vector)
         dot = self.dot(on_vector)
         return on_vector * (dot / magnitude_square)  # TODO check zero division
+
+    def project_on_plane(self, plane_normal):
+        magnitude_square = plane_normal.dot(plane_normal)
+        dot = self.dot(plane_normal)
+        return Vec3d(self.x - plane_normal.x * dot / magnitude_square, self.y - plane_normal.y * dot / magnitude_square, self.z - plane_normal.z * dot / magnitude_square)
 
     def angle(self, vector):
         if self.magnitude == 0 or vector.magnitude == 0:
@@ -63,7 +80,7 @@ class Vec3d:
             return 0
 
     def angle_degree(self, vector):
-        return self.angle(vector) * (180 / math.pi)
+        return math.degrees(self.angle(vector))
 
     # Helps to do some_vector[0] etc or some_matrix[0][0]
     def __getitem__(self, item):
@@ -104,8 +121,14 @@ class Vec3d:
     def __truediv__(self, scalar: float):
         return self * scalar ** -1
 
+    def __round__(self, n=None):
+        return Vec3d(round(self.x, n), round(self.y, n), round(self.z, n), round(self.w, n))
+
     def __neg__(self, ):
         return self * -1
+
+    def __abs__(self):
+        return Vec3d(abs(self.x), abs(self.y), abs(self.z), abs(self.w))
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.z == other.z and self.w == other.w
@@ -128,11 +151,11 @@ class Vec3d:
 
     @staticmethod
     def left():
-        return Vec3d(-1, 0, 0)
+        return Vec3d(1, 0, 0)
 
     @staticmethod
     def right():
-        return Vec3d(1, 0, 0)
+        return Vec3d(-1, 0, 0)
 
     @staticmethod
     def forward():
@@ -149,6 +172,10 @@ class Point(Vec3d):
 
     def to_vector(self):
         return Vec3d(self.x, self.y, self.z, 0)
+
+    @staticmethod
+    def zero():
+        return Point(0, 0, 0)
 
     def __sub__(self, other):
         return Point(self.x - other.x, self.y - other.y, self.z - other.z)

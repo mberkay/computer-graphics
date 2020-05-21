@@ -17,7 +17,8 @@ from input_controller import InputController
 from lights import *
 from mat3d import *
 from material import *
-from obj_parser import ObjParser
+from shader import Shader
+from program import Program
 from shapes import *
 from scene import Scene
 from transform import Transform
@@ -25,6 +26,9 @@ from transform import Transform
 
 # Some api in the chain is translating the keystrokes to this octal string
 # so instead of saying: ESCAPE = 27, we use the following.
+from vec3d import Point
+
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -48,10 +52,8 @@ camera = Camera()
 scene.add_camera(camera)
 
 # cube = Shape(Cube(), Transform(position=Vec3d(-10,-10,10), rotation=Vec3d(0, -0, 0), scale=Vec3d(1,1,1)))
-shader = Shader()
-cube = Shape("cube", Cube(), Transform(position=Vec3d(-10, 0, 0)))
-cube.material = green_rubber
-scene.add_shape(cube)
+#shader = Shader()
+
 
 
 # A general OpenGL initialization function.  Sets all of the initial parameters.
@@ -67,7 +69,7 @@ def InitGL(Width, Height):  # We call this right after our OpenGL window is crea
     # Calculate The Aspect Ratio Of The Window
     gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
 
-    glMatrixMode(GL_MODELVIEW)
+    # glMatrixMode(GL_MODELVIEW)
 
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
@@ -113,31 +115,33 @@ def DrawGLScene():
     # glMaterialfv(GL_BACK, GL_SHININESS, mat_shininess)
     # glLoadIdentity()
 
-    scene.display()
+    # scene.display()
+    scene.display_core()
     # glLightfv(GL_LIGHT0, GL_POSITION, light_position)
     # glEnable(GL_LIGHT0)
     # glPolygonMode(GL_FRONT_FACE, GL_)
     # glEnable(GL_DEPTH_TEST)
     glDisable(GL_LIGHTING)
     # TODO fix Depth bug
-    glBegin(GL_LINES)
-    glColor(0, 0, 1)
-    glVertex3f(0, 0, 100)
-    glVertex3f(0, 0, -100)
-    glColor(1, 0, 0)
-    glVertex3f(100, 0, 0)
-    glVertex3f(-100, 0, -0)
-    glColor(0.3, 0.3, 0.3)
-    for i in range(-100, 100, 1):
-        glVertex3f(i, 0, 100)
-        glVertex3f(i, 0, -100)
-        glVertex3f(100, 0, i)
-        glVertex3f(-100, 0, i)
-        # glVertex3f(0, 100, i)
-        # glVertex3f(0, -100, i)
-        # glVertex3f(0, i, -100)
-        # glVertex3f(0, i, 100)
-    glEnd()
+    # glLoadIdentity()
+    # glBegin(GL_LINES)
+    # glColor(0, 0, 1)
+    # glVertex3f(0, 0, 100)
+    # glVertex3f(0, 0, -100)
+    # glColor(1, 0, 0)
+    # glVertex3f(100, 0, 0)
+    # glVertex3f(-100, 0, -0)
+    # glColor(0.3, 0.3, 0.3)
+    # for i in range(-100, 100, 1):
+    #     glVertex3f(i, 0, 100)
+    #     glVertex3f(i, 0, -100)
+    #     glVertex3f(100, 0, i)
+    #     glVertex3f(-100, 0, i)
+    #     # glVertex3f(0, 100, i)
+    #     # glVertex3f(0, -100, i)
+    #     # glVertex3f(0, i, -100)
+    #     # glVertex3f(0, i, 100)
+    # glEnd()
 
     glutSwapBuffers()
 
@@ -145,7 +149,6 @@ def DrawGLScene():
 def main():
     global window
     glutInit(sys.argv)
-
     # Select type of Display mode:
     #  Double buffer
     #  RGBA color
@@ -160,6 +163,7 @@ def main():
     glutInitWindowPosition(0, 0)
     window = glutCreateWindow("CENG487 Template")
 
+
     # Display Func
     glutDisplayFunc(DrawGLScene)
 
@@ -173,7 +177,27 @@ def main():
     input_controller = InputController(scene)
 
     # Initialize our window.
+
     InitGL(640, 480)
+    # Shaders
+    grid_vertex_shader = Shader("shaders/Grid.verts", GL_VERTEX_SHADER)
+    grid_fragment_shader = Shader("shaders/Grid.frags", GL_FRAGMENT_SHADER)
+    grid_program = Program(grid_vertex_shader, grid_fragment_shader)
+
+    shape_vertex_shader = Shader("shaders/Shape.verts", GL_VERTEX_SHADER)
+    shape_fragment_shader = Shader("shaders/Shape.frags", GL_FRAGMENT_SHADER)
+    shape_program = Program(shape_vertex_shader, shape_fragment_shader)
+
+    cube = Shape("cube", Cube(), Transform(position=Point(5, 0, 0), rotation=Vec3d(0,0,0)),  color= Point(0,1,0), program=shape_program)
+    # cube2 = Shape("cube2", Cube(), Transform(position=Vec3d(5, 0, 0)), program=shape_program)
+    # cube3 = Shape("cube3", Cube(), Transform(position=Vec3d(0, 0, 5)), program=shape_program)
+    # cube4 = Shape("cube4", Cube(), Transform(position=Vec3d(0, 5, 0)), program=shape_program)
+    scene.grid = Shape("grid", Grid(), program=grid_program)
+    # cube.material = green_rubber
+    scene.add_shape(cube)
+    # scene.add_shape(cube2)
+    # scene.add_shape(cube3)
+    # scene.add_shape(cube4)
 
     # Start Event Processing Engine
     glutMainLoop()

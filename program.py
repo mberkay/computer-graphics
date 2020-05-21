@@ -15,13 +15,12 @@ class Program:
         self.attach_shader(self.vertex_shader)
         self.attach_shader(self.fragment_shader)
         glLinkProgram(self.id)
-        
+
     def attach_shader(self, shader):
         glAttachShader(self.id, shader.id)
 
     def use(self):
         try:
-
             glUseProgram(self.id)
         # https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml
         except (GL_INVALID_VALUE, GL_INVALID_OPERATION) as e:

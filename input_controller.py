@@ -1,7 +1,7 @@
-# CENG 487 Assignment3 by
+# CENG 488 Assignment3 by
 # Mustafa Berkay Özkan
 # StudentId: 230201005
-# 11 2019
+# 05 2020
 
 from OpenGL.GLUT import *
 
@@ -20,14 +20,9 @@ class InputController:
         glutMotionFunc(self.drag)
 
         self.scene = scene
-        # self.on_arrow_clicked = None
-        # self.on_plus_subtract_clicked = None
-        # self.on_f_clicked = None
-        # self.on_w_clicked = None
-        # self.on_mouse_wheel_event = None
-        # self.on_alt_left_event = None
 
         self.is_alt_pressed = False
+        self.is_ctrl_pressed = False
         self.is_left_click_pressed = False
         self.is_right_click_pressed = False
         self.is_mouse_wheel_click_pressed = False
@@ -35,37 +30,37 @@ class InputController:
         self.previous_x = 0
         self.previous_y = 0
         self.camera_sensitivity = 1
+        self.camera_zoom_sensitivity = 1
 
     def drag(self, x, y):
         camera = self.scene.active_camera
         x_offset = x - self.previous_x
         y_offset = self.previous_y - y  # Reversed since window coordinates start from top left corner
+
+        # Middle mouse click control
         if self.is_mouse_wheel_click_pressed:
             up = camera.transform.up * self.camera_sensitivity * y_offset
-            right = camera.transform.right * self.camera_sensitivity * x_offset
-            camera.transform.position += (-up + right) / 100
+            right = camera.transform.right * self.camera_sensitivity * -x_offset
+            camera.transform.position += (-up + -right) / 100
 
         elif self.is_right_click_pressed:
             # alt + Right Click is Zoom
             if self.is_alt_pressed:
                 if x > self.previous_x or y > self.previous_y:
-                    camera.transform.position += camera.transform.forward / 10
+                    self.zoom_active_camera(1)  # Forward
                 else:
-                    camera.transform.position -= camera.transform.forward / 10
+                    self.zoom_active_camera(-1)  # Back
             # Right Click to look around
             else:
                 right = x_offset / 10
                 up = y_offset / 10
-                camera.transform.rotate_axis(camera.transform.right, up)
-                camera.transform.rotate_axis(camera.transform.up, right)
+                self.rotate_active_camera(up, right)
 
             # alt + Left Click is Rotate camera around focus shape
         elif self.is_left_click_pressed and self.is_alt_pressed:
             focus_point = self.find_focus_point()
-            up = camera.transform.up * y_offset
-            right = camera.transform.right * x_offset
-            camera.transform.position += (-up + right) / 100
-            camera.transform.look_at(focus_point)
+            camera.transform.rotate_around(focus_point, camera.transform.right, -y_offset)
+            camera.transform.rotate_around(focus_point, Vec3d.up(), x_offset)
 
         self.previous_x = x
         self.previous_y = y
@@ -83,6 +78,13 @@ class InputController:
             self.scene.active_camera.reset()
         elif key == b'w':
             self.change_draw_mode()
+        elif key == b'k':
+            # self.scene.active_camera.transform.rotate_around(Vec3d(0,0,0), self.scene.active_camera.transform.right, 1)
+            self.scene.shapes[0].transform.rotate_around(Point(0,0,0), self.scene.shapes[0].transform.right, 5)
+            self.scene.shapes[0].transform.look_at(Point(0,0,0))
+        elif key == b'l':
+            self.scene.shapes[0].transform.rotate_around(Point(0, 0, 0), Vec3d.up(), 5)
+            self.scene.shapes[0].transform.look_at(Point(0,0,0))
         elif key == b'q':
             self.change_face_type_of_selected_shapes(FaceType.QUAD)
         elif key == b't':
@@ -103,34 +105,47 @@ class InputController:
         if key == 100:
             if self.is_alt_pressed:
                 self.rotate_selected_shapes(0, -5)
+            elif self.is_ctrl_pressed:
+                self.rotate_active_camera(0, -5)
             else:
                 self.translate_selected_shapes(-1, 0)
         # Up Arrow
         elif key == 101:
             if self.is_alt_pressed:
                 self.rotate_selected_shapes(5, 0)
+            elif self.is_ctrl_pressed:
+                self.rotate_active_camera(5, 0)
             else:
                 self.translate_selected_shapes(0, 1)
         # Right Arrow
         elif key == 102:
             if self.is_alt_pressed:
                 self.rotate_selected_shapes(0, 5)
+            elif self.is_ctrl_pressed:
+                self.rotate_active_camera(0, 5)
             else:
                 self.translate_selected_shapes(1, 0)
         # Down Arrow
         elif key == 103:
             if self.is_alt_pressed:
                 self.rotate_selected_shapes(-5, 0)
+            elif self.is_ctrl_pressed:
+                self.rotate_active_camera(-5, 0)
             else:
                 self.translate_selected_shapes(0, -1)
         # Alt
         elif key == 116:
             self.is_alt_pressed = True
+        # LCtrl
+        elif key == 114:
+            self.is_ctrl_pressed = True
 
     def process_special_input_up(self, key, x, y):
         if key == 116:
             # print("alt")
             self.is_alt_pressed = False
+        if key == 114:
+            self.is_ctrl_pressed = False
 
     def process_mouse_input(self, button, state, x, y):
         if button == 0:
@@ -147,9 +162,11 @@ class InputController:
             self.previous_y = y
         # Mouse wheel up
         if button == 3 and state == 1:
+            self.zoom_active_camera(1)
             pass
         # Mouse wheel down
         elif button == 4 and state == 1:
+            self.zoom_active_camera(-1)
             pass
 
     def change_face_type_of_selected_shapes(self, face_type):
@@ -161,19 +178,27 @@ class InputController:
         draw_mode = self.scene.draw_mode
         self.scene.draw_mode = DrawMode.modes[(draw_mode + 1) % len(DrawMode.modes)]
 
-    def translate_selected_shapes(self, x, z):
+    def translate_selected_shapes(self, right, forward):
         for shape in self.scene.selected_shapes:
-            shape.transform.translate(Vec3d(x, 0, z))
+            shape.transform.translate(shape.transform.forward * forward + shape.transform.right * right)
+
+    def rotate_active_camera(self, up, right):
+        cam = self.scene.active_camera.transform
+        cam.rotate_axis(cam.right, up)
+        cam.rotate_axis(Vec3d.up(), -right)
+
+    def zoom_active_camera(self, direction):
+        cam = self.scene.active_camera.transform
+        cam.position += direction * cam.forward * self.camera_zoom_sensitivity
 
     def rotate_selected_shapes(self, up, right):
         for shape in self.scene.selected_shapes:
             shape.transform.rotate_axis(shape.transform.right, up)
-            shape.transform.rotate_axis(shape.transform.up, right)
+            shape.transform.rotate_axis(shape.transform.up, -right)
 
     def subdivide_selected_shapes(self, type):
         for shape in self.scene.selected_shapes:
             shape.mesh.subdivide(type)
-            # shape.mesh.subdivide2(type)
 
     def focus_active_shape(self):
         focus_point = self.find_focus_point()

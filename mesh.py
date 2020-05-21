@@ -6,6 +6,8 @@
 from copy import deepcopy
 from typing import List
 
+import numpy
+
 from face import Face
 from vec3d import Point
 
@@ -13,7 +15,8 @@ from vec3d import Point
 class FaceType:
     TRIANGLE = 0
     QUAD = 1
-    types = [TRIANGLE, QUAD]
+    LINE = 2
+    types = [TRIANGLE, QUAD, LINE]
 
 
 # TODO encapsulate face and position
@@ -23,9 +26,24 @@ class Mesh:
         # if faces is None:
         #     faces = Mesh.create_faces(positions)
         self.faces = faces
-        self.__indexes, self.__face_type = self.create_indexes(faces, face_type)
+        if len(self.faces) is 0:
+            self.__face_type = FaceType.LINE
+        else:
+            self.__indexes, self.__face_type = self.create_indexes(faces, face_type)
         self.subdivision_level = 0
         self.subdivisions = []
+
+    @property
+    def np_positions(self):
+        vertices = []
+        for face in self.faces:
+            # face = face.to_quad()
+            for index in face:
+                vertices.append(self.positions[index].to_array())
+
+        # vertices = [vertex.to_array() for vertex in self.positions]
+        size_vertices = len(vertices)
+        return numpy.asarray(vertices).reshape(size_vertices * 4), size_vertices
 
     # def Normals(self):
     #     # sum = Vec3d.zero()

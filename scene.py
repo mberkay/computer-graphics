@@ -9,7 +9,7 @@ from OpenGL.GL import *
 
 from camera import Camera
 from lights.light import Light
-from shapes import Shape
+from shapes import Shape, Grid
 
 
 class DrawMode:
@@ -28,6 +28,27 @@ class Scene:
         self.__selected_shapes = []
         self.__draw_mode = DrawMode.SHADED
         self.should_animate = True
+        self.grid = None
+
+    def display_core(self):
+        self.active_camera.update()
+        view_matrix = self.active_camera.view_matrix
+        project_matrix = self.active_camera.project_matrix
+
+        if self.grid is not None:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            self.grid.draw_core(view_matrix, project_matrix)
+
+        if self.draw_mode is DrawMode.SHADED or self.draw_mode is DrawMode.WIRED_SHADED:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            for shape in self.__shapes:
+                shape.draw_core(view_matrix, project_matrix)
+
+        if self.draw_mode is DrawMode.WIRED or self.draw_mode is DrawMode.WIRED_SHADED:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            for shape in self.__shapes:
+                shape.draw_core(view_matrix, project_matrix)
+
 
     def display(self):
         # glEnable(GL_NORMALIZE)
@@ -58,7 +79,10 @@ class Scene:
             light.light()
 
         if self.should_animate:
-            self.__lights[0].animate()
+            try:
+                self.__lights[0].animate()
+            except:
+                self.should_animate = False
 
         #  Draw subdivision level to screen
         # # TODO fix positioning
